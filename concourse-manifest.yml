@@ -1,0 +1,62 @@
+---
+name: concourse
+
+releases:
+- name: concourse
+  version: latest
+- name: garden-runc
+  version: latest
+
+stemcells:
+- alias: trusty
+  os: ubuntu-trusty
+  version: latest
+
+instance_groups:
+- name: web
+  instances: 1
+  vm_type: small
+  stemcell: trusty
+  azs: [z1]
+  networks: [{name: private}]
+  persistent_disk_type: 5GB
+  vm_extensions:
+  - 50GB_ephemeral_disk
+  jobs:
+  - name: atc
+    release: concourse
+    properties:
+      bind_port: 80
+      external_url: http://cool-concourse-env.gq
+      basic_auth_username: username
+      basic_auth_password: password
+      postgresql_database: &atc_db atc
+  - name: tsa
+    release: concourse
+    properties: {}
+  - name: postgresql
+    release: concourse
+    properties:
+      databases:
+      - name: *atc_db
+        role: db
+        password: password
+  - name: groundcrew
+    release: concourse
+    properties: {}
+  - name: baggageclaim
+    release: concourse
+    properties: {}
+  - name: garden
+    release: garden-runc
+    properties:
+      garden:
+        listen_network: tcp
+        listen_address: 0.0.0.0:7777
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
