@@ -18,7 +18,8 @@ instance_groups:
   vm_type: small
   stemcell: trusty
   azs: [z1]
-  networks: [{name: private}]
+  networks:
+  - name: private
   persistent_disk_type: 5GB
   vm_extensions:
   - 50GB_ephemeral_disk
@@ -27,7 +28,7 @@ instance_groups:
     release: concourse
     properties:
       bind_port: 80
-      external_url: http://cool-concourse-env.gq
+      external_url: http://35.196.194.142
       basic_auth_username: username
       basic_auth_password: password
       postgresql_database: &atc_db atc

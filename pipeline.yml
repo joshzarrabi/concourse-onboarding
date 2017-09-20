@@ -2,16 +2,31 @@ jobs:
 - name: a-job
   public: true
   plan:
+  - get: this-pipeline
+    trigger: true
+  - get: our-image
   - task: do-something
+    image: our-image
     config:
       platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: ubuntu}
+      inputs:
+      - name: this-pipeline
+
       run:
         path: sh
         args:
         - -c
         - |
-          echo "hi"
+          cd this-pipeline
+          cat pipeline.yml
 
+resources:
+- name: this-pipeline
+  type: git
+  source:
+    uri: https://github.com/joshzarrabi/concourse-onboarding
+
+- name: our-image
+  type: docker-image
+  source:
+    repository: joshzarrabi/images
